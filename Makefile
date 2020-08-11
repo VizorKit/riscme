@@ -9,40 +9,45 @@ OBJDIR := obj
 TGTDIR := target
 SRCDIR := src
 DMPDIR := dump
-
-# Sources list
-SRCS := main.c kernel.c
-# Sources location
-VPATH := src:../headers
-
-# Objects list
-objects = $(notdir $(patsubst %.c,%.o,$(addprefix $(SRCDIR)/,$(SRCS))))
-# Objects list with prefix
-prefix_objs = $(addprefix $(OBJDIR)/, $(objects))
+TSTDIR := tests
 
 # Target name
 target = main
+
+# Sources list
+sources := $(wildcard $(SRCDIR)/*.c $(SRCDIR)/*/*.c)
+
+# Objects list
+objects = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(sources))
+
+# Tests list
+tests := $(wildcard $(TSTDIR)/*.c)
 
 # main rule.
 run: $(TGTDIR)/$(target)
 	cd $(TGTDIR) && ./$(target)
 
 # test rule.
-
+test: $(TSTDIR)/%.exe
+	$<
 # shared rules.
-$(TGTDIR)/$(target) : $(prefix_objs)
-	$(CC) -o $@ $(prefix_objs)
+$(TGTDIR)/$(target) : $(objects)
+	$(CC) -o $@ $^
 
-$(OBJDIR)/%.o: %.c | folders
+$(OBJDIR)/%.o: $(SRCDIR)/%.c | folders
+	@mkdir -p $(@D) $(DMPDIR)/$(@D)
 	$(CC) $(CFLAGS) -o $@ $<
-	$(ODUMP) $(ODFLAGS) $@ > $(DMPDIR)/$@
+	$(ODUMP) $(ODFLAGS) $@ > $(DMPDIR)/$@.list
 
-# test runs.
+$(TSTDIR)/%.exe : $(TSTDIR)/%.c $(OBJDIR)/%.o
+	$(CC) $(CFLAGS) -o $@ $<
+# test rules.
+
 
 folders:
-	mkdir -p $(OBJDIR)
-	mkdir -p $(TGTDIR)
-	mkdir -p $(DMPDIR)/$(OBJDIR)
+	@mkdir -p $(OBJDIR)
+	@mkdir -p $(TGTDIR)
+	@mkdir -p $(DMPDIR)/$(OBJDIR)
 
 .PHONY: clean
 clean:
