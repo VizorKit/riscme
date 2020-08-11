@@ -22,6 +22,7 @@ objects = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(sources))
 
 # Tests list
 tests := $(wildcard $(TSTDIR)/*.c)
+# todo:: try building tests list like objects, then use that as the prereq for test.
 
 # main rule.
 run: $(TGTDIR)/$(target)
@@ -39,10 +40,9 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c | folders
 	$(CC) $(CFLAGS) -o $@ $<
 	$(ODUMP) $(ODFLAGS) $@ > $(DMPDIR)/$@.list
 
-$(TSTDIR)/%.exe : $(TSTDIR)/%.c $(OBJDIR)/%.o
-	$(CC) $(CFLAGS) -o $@ $<
-# test rules.
-
+# tests build.
+$(TSTDIR)/%.exe : $(TSTDIR)/%.c | $(OBJDIR)/%.o
+	$(CC) $(CFLAGS) -o $@ $(objects)
 
 folders:
 	@mkdir -p $(OBJDIR)
