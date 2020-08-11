@@ -1,6 +1,8 @@
 # Variables
 CC = gcc
 CFLAGS = -Wall -g -c
+ODUMP = objdump
+ODFLAGS = -d
 
 # Directories
 OBJDIR := obj
@@ -10,28 +12,37 @@ DMPDIR := dump
 
 # Sources list
 SRCS := main.c kernel.c
+# Sources location
 VPATH := src:../headers
 
+# Objects list
 objects = $(notdir $(patsubst %.c,%.o,$(addprefix $(SRCDIR)/,$(SRCS))))
+# Objects list with prefix
 prefix_objs = $(addprefix $(OBJDIR)/, $(objects))
+
+# Target name
 target = main
 
-$(target) : $(objects)
-	$(CC) -o $(TGTDIR)/$@ $(prefix_objs)
+# main rule.
+run: $(TGTDIR)/$(target)
+	cd $(TGTDIR) && ./$(target)
 
-%.o: %.c | folders
-	$(CC) $(CFLAGS) -o $(OBJDIR)/$@ $<
+# test rule.
 
-# $(target): $(objects)
-# 	$(CC) -o $(TGTDIR)/$(target) $(OBJDIR)/$(objects)
+# shared rules.
+$(TGTDIR)/$(target) : $(prefix_objs)
+	$(CC) -o $@ $(prefix_objs)
 
-# $(objects): $(sources) | folders
-# 	$(CC) $(CFLAGS) $< -o $(OBJDIR)/$@
+$(OBJDIR)/%.o: %.c | folders
+	$(CC) $(CFLAGS) -o $@ $<
+	$(ODUMP) $(ODFLAGS) $@ > $(DMPDIR)/$@
+
+# test runs.
 
 folders:
 	mkdir -p $(OBJDIR)
 	mkdir -p $(TGTDIR)
-	mkdir -p $(DMPDIR)
+	mkdir -p $(DMPDIR)/$(OBJDIR)
 
 .PHONY: clean
 clean:
