@@ -14,40 +14,42 @@ TSTDIR := tests
 # Target name
 target = main
 
-# Sources list
+# Sources
 sources := $(wildcard $(SRCDIR)/*.c $(SRCDIR)/*/*.c)
 
 # Objects list
 objects = $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(sources))
 
-# Tests list
+# Tests
 tests := $(wildcard $(TSTDIR)/*.c)
-# todo:: try building tests list like objects, then use that as the prereq for test.
 
-# main rule.
+# Tests list
+tests_list := $(patsubst $(TSTDIR)/%.c,$(OBJDIR)/%.exe,$(tests))
+
+# run rules.
 run: $(TGTDIR)/$(target)
 	cd $(TGTDIR) && ./$(target)
 
-# test rule.
-test: $(TSTDIR)/%.exe
-	$<
-# shared rules.
 $(TGTDIR)/$(target) : $(objects)
 	$(CC) -o $@ $^
 
+# test rules.
+test: $(tests_list)
+	$<
+
+$(OBJDIR)/%.exe: $(TSTDIR)/%.c $(objects) | $(objects)
+	$(CC) -o $@ $< $(filter $(@D)/$(basename $(@F))/$(basename $(@F)).o,$(objects))
+
+# shared build rules.
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | folders
 	@mkdir -p $(@D) $(DMPDIR)/$(@D)
 	$(CC) $(CFLAGS) -o $@ $<
 	$(ODUMP) $(ODFLAGS) $@ > $(DMPDIR)/$@.list
 
-# tests build.
-$(TSTDIR)/%.exe : $(TSTDIR)/%.c | $(OBJDIR)/%.o
-	$(CC) $(CFLAGS) -o $@ $(objects)
-
 folders:
 	@mkdir -p $(OBJDIR)
 	@mkdir -p $(TGTDIR)
-	@mkdir -p $(DMPDIR)/$(OBJDIR)
+	@mkdir -p $(DMPDIR)
 
 .PHONY: clean
 clean:
