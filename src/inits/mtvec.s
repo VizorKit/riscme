@@ -1,4 +1,3 @@
-.section .text.init.mtvec
 .align 2
 .global _early_mtvec
 _early_mtvec:
@@ -9,4 +8,4 @@ _early_mtvec:
 
 .globl _set_mtvec
 _set_mtvec:
-    auipc t0, 0 
+    auipc t0, 0

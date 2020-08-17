@@ -1,6 +1,6 @@
 # Variables
 CC = riscv64-unknown-elf-gcc
-CFLAGS = -march=rv32imac -mabi=ilp32 -Wall -O2 -nostdlib -nostartfiles -ffreestanding  -c
+CFLAGS = -march=rv32imac -mabi=ilp32 -Wall -O3 -nostdlib -nostartfiles -ffreestanding -ffunction-sections -c
 LDFLAGS = -march=rv32imac -mabi=ilp32 -melf32lriscv -T
 LD = riscv64-unknown-elf-ld
 AS = riscv64-unknown-elf-as
@@ -32,6 +32,10 @@ tests := $(wildcard $(TSTDIR)/*.c)
 
 # Tests list
 tests_list := $(patsubst $(TSTDIR)/%.c,$(OBJDIR)/%.exe,$(tests))
+
+#Includes
+includes := $(wildcard $(SRCDIR)/*.h $(SRCDIR)/*/*.h)
+includes += $(wildcard $(SCRDIR)/macros/*.s)
 
 # run rules.
 # todo:: setup qemu
