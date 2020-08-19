@@ -8,9 +8,6 @@
 
 .globl _gpio_init
 _gpio_init:
-    addi sp, sp, -16            
-    sw ra, 12(sp)               
-
     li t0, GPIO_CTRL_ADDR       # Load the base GPIO address
     li t1, GPIO_RGB_PINS        # Get the RGP Pins offset
     sw t1, GPIO_OUTPUT_EN(t0)   # Enable RGB pins as output pins
@@ -19,15 +16,26 @@ _gpio_init:
 
     li t1, GPIO_BLUE_LED        
     sw t1, GPIO_OUTPUT_VAL(t0)  # Write the new output so we turn on the requested LED
-
-    lw ra, 12(sp)               # Restore the return address
-    addi sp, sp, 16             # Deallocate stack frame
-.globl _gpio_set
-_gpio_set:
-    addi sp, sp, -16            
-    sw ra, 12(sp)
-
+    ret
+.globl _gpio_red
+_gpio_red:
     li t0, GPIO_CTRL_ADDR       # Load the base GPIO address
-    sw a0, GPIO_OUTPUT_VAL(t0)  # Set the requested PIN
-
-
+    sw x0, GPIO_OUTPUT_VAL(t0)
+    li a0, GPIO_RED_LED
+    sw a0, GPIO_OUTPUT_VAL(t0)  # Write the new output so we turn on the requested LED
+    ret
+.globl _gpio_green
+_gpio_green:
+    li t0, GPIO_CTRL_ADDR       # Load the base GPIO address
+    sw x0, GPIO_OUTPUT_VAL(t0)
+    li a0, GPIO_GREEN_LED
+    sw a0, GPIO_OUTPUT_VAL(t0)  # Write the new output so we turn on the requested LED
+    ret
+.globl _gpio_blue
+_gpio_blue:
+    li t0, GPIO_CTRL_ADDR       # Load the base GPIO address
+    sw x0, GPIO_OUTPUT_VAL(t0)
+    li a0, GPIO_BLUE_LED
+    sw a0, GPIO_OUTPUT_VAL(t0)  # Write the new output so we turn on the requested LED
+    ret
+       

@@ -6,7 +6,7 @@ MEMORY
 ENTRY(_start)
 HIGH_MEM = ORIGIN(ram) + LENGTH(ram);
 LOW_MEM = ORIGIN(ram);
-RESET_VEC = 0x1004;
+RESET_VEC = 0x10040000;
 SECTIONS
 {
     .text : 

@@ -1,11 +1,13 @@
 .align 2
-.global _early_mtvec
-_early_mtvec:
-    csrr t0, mcause
-    csrr t1, mepc
-    csrr t2, mtval
-    j _early_mtvec
-
 .globl _set_mtvec
 _set_mtvec:
-    auipc t0, 0
+    csrrci t0, mstatus, 3                   # disable interrupts
+    la a0, _fail_handler                    # loads reset vector
+    csrrw t2, mtvec, a0                     # get address of reset
+    csrrci t1, mtvec, 1                     # set to direct
+    csrrsi t0, mstatus, 3                   # enable interrupts
+    ret
+.align 8
+_fail_handler:
+    jal ra, _gpio_red
+    mret
