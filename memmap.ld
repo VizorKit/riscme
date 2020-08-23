@@ -9,27 +9,33 @@ LOW_MEM = ORIGIN(ram);
 RESET_VEC = 0x10040000;
 SECTIONS
 {
-    .text : 
+    .text : ALIGN(4)
     {
+        . = ALIGN(4);
         *(.text*);
+        . = ALIGN(4);
     } > rom
-    .vt . :
+    .vt . : ALIGN(4)
     {
+        . = ALIGN(4);
         .vt.begin = . ;
         *(.vt.*)
         .vt.reset = RESET_VEC;
         .vt.end = . ;
+        . = ALIGN(4);
     } > rom
-    .sys . :
+    .sys . : ALIGN(4)
     {
+        . = ALIGN(4);
         .sys.begin = .;
         *(.sys.*)
         .sys.low_mem = LOW_MEM;
         .sys.high_mem = HIGH_MEM;
         .sys.end = .;
+        . = ALIGN(4);
     } > rom
-    .rodata : { *(.rodata*) } > rom
-    .bss : { *(.bss*) } > ram
+    .rodata : ALIGN(4) { *(.rodata*) } > rom
+    .bss : ALIGN(4) { *(.bss*) } > ram
     .eh_frame (NOLOAD) : ALIGN(4)
     {
         . = ALIGN(4);

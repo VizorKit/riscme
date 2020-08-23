@@ -1,4 +1,4 @@
-.align 2
+.align 4
 .globl _set_mtvec
 _set_mtvec:
     csrrci t0, mstatus, 3                   # disable interrupts
