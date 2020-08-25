@@ -5,96 +5,111 @@
 
 /* information of result is included in lexer. */
 /* if returned lexer is token ENDLINE increase the this_line variable */
-lexer_t process_tokenizer(const char *buffer, int line, int pos)
+lexer_t lexer_get(const char *buffer, int line, int pos)
 {
+    token_t token = token_get(buffer);
     lexer_t lexer = {
         .line = line,
         .pos = pos,
-        .token = UNDEFINED,
-        .value = malloc(sizeof(char) * 255)};
+        .token = token};
+    return lexer;
+}
+
+lexer_l lexer_get_list(const char * buffer) {
+    lexer_l lex_list = {
+        .lexers = malloc(sizeof(lexer_t) * 255),
+        .size = 0,
+        .cap = 255
+    };
+    int line = 0;
+    int pos = 0;
+    while(buffer != NULL && *buffer != '\0') {
+        lexer_t lex = lexer_get(buffer, line, pos);
+        if(lex.token.value == ENDLINE)
+        {
+            line++;
+        }
+        
+        buffer += strlen(lex.token.data);
+        lex_list.lexers[lex_list.size] = lex;
+        lex_list.size++;
+    }
+    return lex_list;
+}
+
+token_t token_get(const char * buffer) {
+    token_t token = {
+        .value = EMPTY,
+        .data = {'\0'},
+    };
     char c = *buffer;
     switch (c)
     {
     case '#':
     {
         const char *comment = buffer;
-        lexer.token = COMMENT;
-        while (comment != NULL && *comment != 10)
+        int length = 0;
+        token.value = COMMENT;
+        while (comment != NULL && *comment != 10 && *comment != '\0')
         {
-            lexer.pos++;
             comment++;
+            length++;
         }
-        strncpy(lexer.value, buffer, ((lexer.pos < 255) ? lexer.pos : 255) - pos);
+        memcpy(token.data, buffer, sizeof(char) * length);
         break;
     }
     case ' ':
     {
-        lexer.pos++;
-        lexer.token = SEPARATOR;
-        lexer.value = " ";
+        token.value = SEPARATOR;
+        token.data[0] = ' ';
         break;
     }
     case '\t':
     {
-        lexer.pos += 1;
-        lexer.token = SEPARATOR;
-        lexer.value = "\t";
+        token.value = SEPARATOR;
+        token.data[0] = '\t';
         break;
     }
     case '\n':
     {
-        lexer.pos++;
-        lexer.token = ENDLINE;
+        token.value = ENDLINE;
+        token.data[0] = '\n';
         break;
     }
     case '\r':
     {
-        lexer.pos++;
-        lexer.token = ENDLINE;
+        token.value = ENDLINE;
+        token.data[0] = '\r';
         break;
     }
     case ',':
     {
-        lexer.pos++;
-        lexer.token = SEPARATOR;
-        lexer.value = ",";
+        token.value = SEPARATOR;
+        token.data[0] = ',';
         break;
+    }
+    case '\0':
+    {
+        token.value = EMPTY;
+        token.data[0] = '\0';
     }
     default:
     {
         const char *value = buffer;
-        lexer.token = VALUE;
+        int length = 0;
+        token.value = VALUE;
         while (*value != '\0' && *value != '\n' && *value != ',' && *value != ' ' && *value != '\t' && *value != '\r')
         {
-            lexer.pos++;
+            length++;
             value++;
         }
-        strncpy(lexer.value, buffer, ((lexer.pos < 255) ? lexer.pos : 255) - pos);
+        memcpy(token.data, buffer, sizeof(char) * length);
         break;
     }
     }
-    return lexer;
+    return token;
 }
 
-lexer_t * process_all_tokens(const char * buffer) {
-    lexer_t * lexers = malloc(sizeof(lexer_t *) * 22);
-    int index = 0;
-    int stop = 0;
-    int line = 1;
-    int lexer_pos = 0;
-    int prev_lexer_pos = 0;
-    int iter_pos = 0;
-    while(*buffer != '\0' && buffer != NULL && stop != 1)
-    {
-        lexers[index] = process_tokenizer(buffer, line, lexer_pos);
-        printf("lexers[index].value %s .pos %d\n", lexers[index].value, lexers[index].pos);
-        if(lexers[index].token == ENDLINE)
-        {
-            line++;
-            lexer_pos = 0;
-        }
-        iter_pos = prev_lexer_pos - lexer_pos;
-        buffer += lexers[index].pos;
-        index++;
-    }
+void lexer_free_list(lexer_l * lexers) {
+    free(lexers->lexers);
 }

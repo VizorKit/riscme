@@ -24,5 +24,5 @@ box_t * box_new();
 int box_add(box_t * box, item_t item);
 /* returns NULL if not found at index */
 item_t * box_get(box_t * box, int index);
-
+/* consumer must manage freeing of the data in items */
 void box_free(box_t * box);

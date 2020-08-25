@@ -1,19 +1,36 @@
 #pragma once
 
-typedef enum _token_ {
+typedef enum _token_
+{
     COMMENT,
     VALUE,
     SEPARATOR,
-    UNDEFINED,
+    EMPTY,
     ENDLINE
-} TOKEN;
+} TOKEN_E;
 
-typedef struct Lexer {
+typedef struct Token
+{
+    TOKEN_E value;
+    char data[255];
+} token_t;
+
+typedef struct Lexer
+{
     int line;
-    char * value;
     int pos;
-    TOKEN token;
+    token_t token;
 } lexer_t;
 
-lexer_t process_tokenizer(const char * buffer, int line, int pos);
-lexer_t * process_all_tokens(const char * buffer);
+typedef struct Lexers
+{
+    lexer_t * lexers;
+    int size;
+    int cap;
+} lexer_l;
+
+token_t token_get(const char *buffer);
+
+lexer_t lexer_get(const char *buffer, int line, int pos);
+lexer_l lexer_get_list(const char *buffer);
+void lexer_free_list(lexer_l * lexers);

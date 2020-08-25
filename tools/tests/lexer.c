@@ -8,55 +8,48 @@ void test_multi() {
     printf("test_multi\n");
     /* 21 total */
     const char * buffer = " # This is a comment\n\t.globl label\nlabel:\nbneqz x0,x0,label\t\t # comment";
-    
-    // printf("%s\n", lexers[21].value);
-    // assert(strcmp(lexers[21].value, "# comment") == 0);
-    // assert(strcmp(lexers[4].value, ".globl") == 0);
-    // assert(lexers[4].line == 2);
-    // free(lexers);
+    lexer_l lexes = lexer_get_list(buffer);
+    assert(lexes.size == 21);
+    printf("%d\n", lexes.lexers[lexes.size].token.value);
+    assert(lexes.lexers[lexes.size].token.value == EMPTY);
 }
 
 void test_value() {
     printf("test_value\n");
-    lexer_t t = process_tokenizer("bneqz", 1, 0);
-    assert(strcmp(t.value, "bneqz") == 0);
-    assert(t.token == VALUE);
-    free(t.value);
+    lexer_t l = lexer_get("bneqz", 1, 0);
+    assert(strcmp(l.token.data, "bneqz") == 0);
+    assert(l.token.value == VALUE);
 }
 
 void test_comment() {
     printf("test_comment\n");
-    lexer_t t = process_tokenizer("# This is a comment\n", 1, 0);
-    assert(t.token == COMMENT);
-    assert(strcmp(t.value, "# This is a comment") == 0);
-    free(t.value);
+    lexer_t l = lexer_get("# This is a comment\n", 1, 0);
+    assert(l.token.value == COMMENT);
+    assert(strcmp(l.token.data, "# This is a comment") == 0);
 }
 
 void test_separator() {
     printf("test_separator\n");
-    lexer_t t = process_tokenizer("\t", 1, 0);
-    assert(t.token == SEPARATOR);
-    lexer_t t2 = process_tokenizer(" ", 1, 0);
-    assert(t2.token == SEPARATOR);
-    lexer_t t3 = process_tokenizer(",", 1, 0);
-    assert(t3.token == SEPARATOR);
-    free(t.value);
-    free(t2.value);
-    free(t3.value);
+    lexer_t l = lexer_get("\t", 1, 0);
+    assert(l.token.value == SEPARATOR);
+    lexer_t l2 = lexer_get(" ", 1, 0);
+    assert(l2.token.value == SEPARATOR);
+    lexer_t l3 = lexer_get(",", 1, 0);
+    assert(l3.token.value == SEPARATOR);
 }
 
 void test_endline() {
     printf("test_endline\n");
-    lexer_t t = process_tokenizer("\n", 1, 0);
-    assert(t.token == ENDLINE);
-    assert(t.pos = 1);
-    free(t.value);
+    lexer_t l = lexer_get("\n", 1, 0);
+    assert(l.token.value == ENDLINE);
+    assert(l.pos = 1);
 }
 
 int main() {
-    test_multi();
+    printf("lexer\n");
     test_endline();
     test_separator();
     test_comment();
     test_value();
+    test_multi();
 }

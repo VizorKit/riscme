@@ -12,7 +12,7 @@ box_t * box_new()
         .ospaces = {0},
         .ospaces_cnt = 0,
     };
-    box_t * box_ptr = NULL;
+    box_t * box_ptr = malloc(sizeof(box_t));
     memcpy(box_ptr, &box, sizeof(box_t));
     return box_ptr;
 }
@@ -31,24 +31,6 @@ item_t * box_get(box_t * box, int index) {
 }
 void box_free(box_t *box)
 {
-    if (box->ospaces_cnt > 0)
-    {
-        for (int i = 0; i < box->size; i++)
-        {
-            for(int j = 0; j < box->ospaces_cnt; j++) {
-                if(box->ospaces[j] != i) {
-                    free(&box->items[i]);
-                }
-            }
-        }
-    }
-    else
-    {
-        for (int i = 0; i < box->size; i++)
-        {
-            free(&box->items[i]);
-        }
-    }
     free(box);
 }
 void resize_box_if_full(box_t *box)
