@@ -24,7 +24,6 @@ lexer_l lexer_get_list(const char * buffer) {
     };
     int line = 0;
     int pos = 0;
-    printf("buffer = %s\n", buffer);
     while(*buffer != '\0') {
         lexer_t lex = lexer_get(buffer, line, pos);
         if(lex.token.value == ENDLINE)

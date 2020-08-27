@@ -9,7 +9,6 @@ void test_multi() {
     /* 21 total */
     const char * buffer = " # This is a comment\n\t.globl label\nlabel:\nbneqz x0,x0,label\t\t # comment";
     lexer_l lexes = lexer_get_list(buffer);
-    printf("size = %d\n", lexes.size);
     assert(lexes.size == 23);
     assert(lexes.lexers[lexes.size - 1].token.value == COMMENT);
 }
