@@ -9,9 +9,9 @@ void test_multi() {
     /* 21 total */
     const char * buffer = " # This is a comment\n\t.globl label\nlabel:\nbneqz x0,x0,label\t\t # comment";
     lexer_l lexes = lexer_get_list(buffer);
-    assert(lexes.size == 21);
-    printf("%d\n", lexes.lexers[lexes.size].token.value);
-    assert(lexes.lexers[lexes.size].token.value == EMPTY);
+    printf("size = %d\n", lexes.size);
+    assert(lexes.size == 23);
+    assert(lexes.lexers[lexes.size - 1].token.value == COMMENT);
 }
 
 void test_value() {
@@ -31,11 +31,11 @@ void test_comment() {
 void test_separator() {
     printf("test_separator\n");
     lexer_t l = lexer_get("\t", 1, 0);
-    assert(l.token.value == SEPARATOR);
+    assert(l.token.value == TAB);
     lexer_t l2 = lexer_get(" ", 1, 0);
-    assert(l2.token.value == SEPARATOR);
+    assert(l2.token.value == SPACE);
     lexer_t l3 = lexer_get(",", 1, 0);
-    assert(l3.token.value == SEPARATOR);
+    assert(l3.token.value == COMMA);
 }
 
 void test_endline() {

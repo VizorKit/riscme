@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "./lookup.c" 
 
 /* information of result is included in lexer. */
 /* if returned lexer is token ENDLINE increase the this_line variable */
@@ -23,14 +24,17 @@ lexer_l lexer_get_list(const char * buffer) {
     };
     int line = 0;
     int pos = 0;
-    while(buffer != NULL && *buffer != '\0') {
+    printf("buffer = %s\n", buffer);
+    while(*buffer != '\0') {
         lexer_t lex = lexer_get(buffer, line, pos);
         if(lex.token.value == ENDLINE)
         {
             line++;
+            pos = 0;
         }
-        
-        buffer += strlen(lex.token.data);
+        int length = strlen(&lex.token.data);
+        buffer += length;
+        pos += length;
         lex_list.lexers[lex_list.size] = lex;
         lex_list.size++;
     }
@@ -42,70 +46,34 @@ token_t token_get(const char * buffer) {
         .value = EMPTY,
         .data = {'\0'},
     };
-    char c = *buffer;
-    switch (c)
+    int c = (int)*buffer;
+    const char *buf_cpy = buffer;
+    token.value = lookup[c];
+    if(token.value == COMMENT)
     {
-    case '#':
-    {
-        const char *comment = buffer;
         int length = 0;
         token.value = COMMENT;
-        while (comment != NULL && *comment != 10 && *comment != '\0')
+        while (buffer != NULL && *buffer != 10 && *buffer != '\0')
         {
-            comment++;
             length++;
+            buffer++;
         }
-        memcpy(token.data, buffer, sizeof(char) * length);
-        break;
+        memcpy(token.data, buf_cpy, sizeof(char) * length);
+        token.data[length] = '\0';
     }
-    case ' ':
+    else if(token.value == VALUE)
     {
-        token.value = SEPARATOR;
-        token.data[0] = ' ';
-        break;
-    }
-    case '\t':
-    {
-        token.value = SEPARATOR;
-        token.data[0] = '\t';
-        break;
-    }
-    case '\n':
-    {
-        token.value = ENDLINE;
-        token.data[0] = '\n';
-        break;
-    }
-    case '\r':
-    {
-        token.value = ENDLINE;
-        token.data[0] = '\r';
-        break;
-    }
-    case ',':
-    {
-        token.value = SEPARATOR;
-        token.data[0] = ',';
-        break;
-    }
-    case '\0':
-    {
-        token.value = EMPTY;
-        token.data[0] = '\0';
-    }
-    default:
-    {
-        const char *value = buffer;
         int length = 0;
         token.value = VALUE;
-        while (*value != '\0' && *value != '\n' && *value != ',' && *value != ' ' && *value != '\t' && *value != '\r')
+        while (lookup[(int)*buffer] == VALUE)
         {
             length++;
-            value++;
+            buffer++;
         }
-        memcpy(token.data, buffer, sizeof(char) * length);
-        break;
+        memcpy(token.data, buf_cpy, sizeof(char) * length);
     }
+    else {
+        token.data[0] = (char)c;
     }
     return token;
 }

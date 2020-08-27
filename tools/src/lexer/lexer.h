@@ -1,12 +1,27 @@
 #pragma once
 
-typedef enum _token_
-{
-    COMMENT,
+typedef enum _simple_ {
     VALUE,
-    SEPARATOR,
-    EMPTY,
-    ENDLINE
+    SPACE,
+    COMMA,
+    ENDLINE,
+    COMMENT,    // '#'
+    TAB,
+    EMPTY,  // '\0'
+    BANG,   // '!'
+    REL,    // '%'
+    QUOTE,  // ''' '"'
+    OPAREN,
+    CPAREN,
+    DOT,    // '.'
+    REF,    // '\'
+    COLON,
+    INVALID,
+    DIRECTIVE,
+    OPCODE,
+    IMMEDIATE,
+    REGISTER,
+    LABEL
 } TOKEN_E;
 
 typedef struct Token
@@ -34,3 +49,5 @@ token_t token_get(const char *buffer);
 lexer_t lexer_get(const char *buffer, int line, int pos);
 lexer_l lexer_get_list(const char *buffer);
 void lexer_free_list(lexer_l * lexers);
+
+TOKEN_E simple_get(const char c);
