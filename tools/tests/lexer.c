@@ -11,6 +11,7 @@ void test_multi() {
     lexer_l lexes = lexer_get_list(buffer);
     assert(lexes.size == 23);
     assert(lexes.lexers[lexes.size - 1].token.value == COMMENT);
+    lexer_free_list(lexes);
 }
 
 void test_value() {

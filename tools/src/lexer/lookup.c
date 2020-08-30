@@ -15,7 +15,7 @@ const static enum _simple_ lookup[128] = {
     ENDLINE, // '10'
     EMPTY,
     EMPTY,
-    ENDLINE,
+    ENDLINE,  // '13'
     EMPTY,
     EMPTY,
     EMPTY,

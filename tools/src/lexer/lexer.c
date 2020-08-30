@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "./lookup.c" 
 
 /* information of result is included in lexer. */
 /* if returned lexer is token ENDLINE increase the this_line variable */
@@ -25,13 +24,18 @@ lexer_l lexer_get_list(const char * buffer) {
     int line = 0;
     int pos = 0;
     while(*buffer != '\0') {
+        if(lex_list.size == lex_list.cap)
+        {
+            lex_list.cap *= 1.5;
+            lex_list.lexers = realloc(lex_list.lexers, sizeof(lexer_t) * lex_list.cap);
+        }
         lexer_t lex = lexer_get(buffer, line, pos);
         if(lex.token.value == ENDLINE)
         {
             line++;
             pos = 0;
         }
-        int length = strlen(&lex.token.data);
+        int length = strlen(lex.token.data);
         buffer += length;
         pos += length;
         lex_list.lexers[lex_list.size] = lex;
@@ -47,7 +51,7 @@ token_t token_get(const char * buffer) {
     };
     int c = (int)*buffer;
     const char *buf_cpy = buffer;
-    token.value = lookup[c];
+    token.value = simple_get(c);
     if(token.value == COMMENT)
     {
         int length = 0;
@@ -64,7 +68,7 @@ token_t token_get(const char * buffer) {
     {
         int length = 0;
         token.value = VALUE;
-        while (lookup[(int)*buffer] == VALUE)
+        while (simple_get(*buffer) == VALUE)
         {
             length++;
             buffer++;
@@ -77,6 +81,6 @@ token_t token_get(const char * buffer) {
     return token;
 }
 
-void lexer_free_list(lexer_l * lexers) {
-    free(lexers->lexers);
+void lexer_free_list(lexer_l lexers) {
+    free(lexers.lexers);
 }
