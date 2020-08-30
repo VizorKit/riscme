@@ -1,4 +1,5 @@
 #pragma once
+#include "../linked/linked.h"
 
 typedef enum _simple_ {
     VALUE,
@@ -27,7 +28,7 @@ typedef enum _simple_ {
 typedef struct Token
 {
     TOKEN_E value;
-    char * data;
+    char data[80];
 } token_t;
 
 typedef struct Lexer
@@ -35,6 +36,7 @@ typedef struct Lexer
     int line;
     int pos;
     token_t token;
+    const char * file;
 } lexer_t;
 
 typedef struct Lexers
@@ -42,11 +44,12 @@ typedef struct Lexers
     lexer_t * lexers;
     int size;
     int cap;
+    dbl_link_l * list;
 } lexer_l;
 
 token_t token_get(const char *buffer);
 
-lexer_t lexer_get(const char *buffer, int line, int pos);
-lexer_l lexer_get_list(const char *buffer);
-void lexer_free_list(lexer_l lexers);
+lexer_t lexer_get(const char *buffer, int line, int pos, const char * buff_name);
+lexer_l lexer_get_list(const char *buffer, const char * buff_name);
+void lexer_free_list(lexer_l * lex_list);
 TOKEN_E simple_get(const char c);

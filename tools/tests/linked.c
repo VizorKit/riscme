@@ -9,8 +9,9 @@ void test_create() {
     printf("test_create\n");
     char * data = malloc(sizeof(char) * 8);
     data = "12345678";
-    dbl_link_l list = dbl_link_new(data, 1);
-    assert(list.first_node->prev == NULL);
+    dbl_link_l list = dbl_link_new(1);
+    node_t * first = dbl_link_add_first(&list, data);
+    assert(first->prev == NULL);
     assert(list.first_node->next == NULL);
     assert(list.nodes[0].prev == NULL);
     assert(list.nodes[0].next == NULL);
@@ -22,8 +23,8 @@ void test_add_insert() {
     printf("test_add_insert\n");
     char * data = malloc(sizeof(char) * 8);
     data = "12345678";
-    dbl_link_l list = dbl_link_new(data, 1);
-    node_t * first = dbl_link_get_first(&list);
+    dbl_link_l list = dbl_link_new(1);
+    node_t * first = dbl_link_add_first(&list, data);
     assert(first != NULL);
     node_t * second = dbl_link_add(&list, first, "2");
     node_t * third = dbl_link_add(&list, second, "3");

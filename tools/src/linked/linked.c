@@ -7,26 +7,26 @@
 #include "../debug/debug.h"
 
 void resize_if_full(dbl_link_l * list);
-dbl_link_l dbl_link_new(const void * data, const int initial_cap) {
+dbl_link_l dbl_link_new(const int initial_cap) {
     assert(initial_cap >= 1);
-    node_t node = {
-        .prev = NULL,
-        .data = data,
-        .next = NULL
-    };
     dbl_link_l linked = {
         .nodes = malloc(sizeof(node_t) * initial_cap),
         .first_node = NULL,
         .size = 1,
         .capacity = initial_cap,
     };
-    memcpy(&linked.nodes[0], &node, sizeof(node_t));
-    linked.first_node = &linked.nodes[0];
     return linked;
 }
 
-node_t * dbl_link_get_first(dbl_link_l * linked) {
-    return linked->first_node;
+node_t * dbl_link_add_first(dbl_link_l * linked, const void * data) {
+    node_t node = {
+        .prev = NULL,
+        .data = data,
+        .next = NULL
+    };
+    memcpy(&linked->nodes[0], &node, sizeof(node_t));
+    linked->first_node = &linked->nodes[0];
+    return &linked->nodes[0];
 }
 
 node_t * dbl_link_add(dbl_link_l * list, node_t * current, const void * data)
@@ -62,6 +62,12 @@ node_t * dbl_link_insert(dbl_link_l * list, node_t * current, const void * data)
 void dbl_link_free(dbl_link_l * list) {
     free(list->nodes);
 }
+
+node_t * dbl_link_get_first(dbl_link_l * list) {
+    return list->first_node;
+}
+
+
 
 void resize_if_full(dbl_link_l * list) {
     if (list->capacity == list->size) {

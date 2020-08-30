@@ -2,34 +2,36 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "../linked/linked.h"
+#include "../debug/debug.h"
 
 /* information of result is included in lexer. */
 /* if returned lexer is token ENDLINE increase the this_line variable */
-lexer_t lexer_get(const char *buffer, int line, int pos)
+lexer_t lexer_get(const char *buffer, int line, int pos, const char * buff_name)
 {
     token_t token = token_get(buffer);
     lexer_t lexer = {
         .line = line,
         .pos = pos,
-        .token = token};
+        .token = token,
+        .file = buff_name};
     return lexer;
 }
 
-lexer_l lexer_get_list(const char * buffer) {
+lexer_l lexer_get_list(const char * buffer, const char * buff_name) {
+    dbl_link_l list = dbl_link_new(255);
     lexer_l lex_list = {
         .lexers = malloc(sizeof(lexer_t) * 255),
         .size = 0,
-        .cap = 255
+        .cap = 255,
+        .list = malloc(sizeof(dbl_link_l))
     };
+    memcpy(lex_list.list, &list, sizeof(dbl_link_l));
     int line = 0;
     int pos = 0;
-    while(*buffer != '\0') {
-        if(lex_list.size == lex_list.cap)
-        {
-            lex_list.cap = lex_list.cap << 1 ;
-            lex_list.lexers = realloc(lex_list.lexers, sizeof(lexer_t) * lex_list.cap);
-        }
-        lexer_t lex = lexer_get(buffer, line, pos);
+    node_t * curr;
+    if(*buffer != '\0') {
+        lexer_t lex = lexer_get(buffer, line, pos, buff_name);
         if(lex.token.value == ENDLINE)
         {
             line++;
@@ -39,7 +41,27 @@ lexer_l lexer_get_list(const char * buffer) {
         buffer += length;
         pos += length;
         lex_list.lexers[lex_list.size] = lex;
+        lex_list.size++;        
+        curr = dbl_link_add_first(&list, (void *)&lex_list.lexers[lex_list.size - 1]);
+    }
+    while(*buffer != '\0') {
+        if(lex_list.size == lex_list.cap)
+        {
+            lex_list.cap = lex_list.cap << 1 ;
+            lex_list.lexers = realloc(lex_list.lexers, sizeof(lexer_t) * lex_list.cap);
+        }
+        lexer_t lex = lexer_get(buffer, line, pos, buff_name);
+                if(lex.token.value == ENDLINE)
+        {
+            line++;
+            pos = 0;
+        }
+        int length = strlen(lex.token.data);
+        buffer += length;
+        pos += length;
+        lex_list.lexers[lex_list.size] = lex;
         lex_list.size++;
+        dbl_link_add(&list, curr, (void *)&lex_list.lexers[lex_list.size - 1]);
     }
     return lex_list;
 }
@@ -47,7 +69,7 @@ lexer_l lexer_get_list(const char * buffer) {
 token_t token_get(const char * buffer) {
     token_t token = {
         .value = EMPTY,
-        .data = NULL,
+        .data = {'\0'},
     };
     int c = (int)*buffer;
     const char *buf_cpy = buffer;
@@ -61,7 +83,7 @@ token_t token_get(const char * buffer) {
             length++;
             buffer++;
         }
-        strncpy(token.data, buf_cpy, length);
+        memcpy(token.data, buf_cpy, sizeof(char) * length);
     }
     else if(token.value == VALUE)
     {
@@ -72,14 +94,17 @@ token_t token_get(const char * buffer) {
             length++;
             buffer++;
         }
-        strncpy(token.data, buf_cpy, length);
+        memcpy(token.data, buf_cpy, sizeof(char) * length);
     }
     else {
-        token.data = (char)c;
+        token.data[0] = (char)c;
     }
     return token;
 }
 
-void lexer_free_list(lexer_l lexers) {
-    free(lexers.lexers);
+void lexer_free_list(lexer_l * lex_list) {
+    free(lex_list->list);
+    free(lex_list->lexers);
 }
+
+

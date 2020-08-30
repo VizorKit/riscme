@@ -30,6 +30,8 @@ tests_list := $(patsubst $(TSTDIR)/%.c,$(OBJDIR)/%.exe,$(tests))
 #Includes
 includes := $(wildcard $(SRCDIR)/*.h $(SRCDIR)/*/*.h)
 
+all: test run | test
+
 # run rules.
 run: $(TGTDIR)/$(target)
 	@echo "success"
@@ -38,11 +40,12 @@ $(TGTDIR)/$(target) : $(objects)
 	$(CC) $(CFLAGS) $^ -o $@
 
 # test rules.
+# TODO:: get the recipe to fail on failed test.
 test: $(tests_list)
-	@$(foreach f,$^,./$(f) && echo $(f) "success";)
+	@$(foreach f,$^,./$(f);)
 
 $(OBJDIR)/%.exe: $(TSTDIR)/%.c $(objects)
-	$(CC) $(CFLAGS) -o $@ $< $(filter $(@D)/$(basename $(@F))/%.o,$(objects))
+	$(CC) $(CFLAGS) -o $@ $< $(filter-out $(@D)/main.o,$(objects))
 
 # shared build rules.
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | folders
