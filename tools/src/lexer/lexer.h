@@ -27,7 +27,7 @@ typedef enum _simple_ {
 typedef struct Token
 {
     TOKEN_E value;
-    char data[55];
+    char * data;
 } token_t;
 
 typedef struct Lexer

@@ -25,13 +25,16 @@ void test_add_insert() {
     dbl_link_l list = dbl_link_new(data, 1);
     node_t * first = dbl_link_get_first(&list);
     assert(first != NULL);
-    node_t * second = dbl_link_add(&list, first->prev, "2");
-    node_t * third = dbl_link_add(&list, second->prev, "3");
-    while(first->next != NULL) {
-        first = first->next;
-    }
-    assert(strcmp(third->data, "3") == 0);
-    assert(strcmp(first->data, "3") == 0);
+    node_t * second = dbl_link_add(&list, first, "2");
+    node_t * third = dbl_link_add(&list, second, "3");
+    assert(strcmp(third->prev->data, "2") == 0);
+    assert(strcmp(first->next->data, "2") == 0);
+
+    node_t * insert = dbl_link_insert(&list, first, "1.5");
+    assert(strcmp(first->next->data, "1.5") == 0);
+    assert(strcmp(insert->next->data, "2") == 0);
+    assert(strcmp(second->prev->data, "1.5") == 0);
+    dbl_link_free(&list);
 }
 
 int main() {

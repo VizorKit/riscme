@@ -28,38 +28,39 @@ dbl_link_l dbl_link_new(const void * data, const int initial_cap) {
 node_t * dbl_link_get_first(dbl_link_l * linked) {
     return linked->first_node;
 }
-node_t * dbl_link_add(dbl_link_l * list, node_t * prev, const void * data)
+
+node_t * dbl_link_add(dbl_link_l * list, node_t * current, const void * data)
 {
     resize_if_full(list);
     node_t node = {
-        .prev = prev,
+        .prev = current,
         .next = NULL,
         .data = data
     };
     memcpy(&(list->nodes[list->size]), &node, sizeof(node_t));
-    debug_print("list->size {%d}\n", list->size);
-    // I can access prev->next no problem.
-    int thing = (int)prev->next;
-    // I can assign node temp and access its data
-    node_t * node_temp = &(list->nodes[list->size]);
-    debug_print("%s\n", node_temp->data);
-    // I can't assign the next node, to the node in the list.
-    prev->next = &(list->nodes[list->size]);
-    debug_print("%s\n", "kaboom");
+    current->next = &(list->nodes[list->size]);
     list->size++;
     return &list->nodes[list->size - 1];
 }
-node_t * dbl_link_insert(dbl_link_l * list, node_t * prev, const void * data)
+
+node_t * dbl_link_insert(dbl_link_l * list, node_t * current, const void * data)
 {
     resize_if_full(list);
     node_t node = {
-        .prev = prev,
-        .next = prev->next,
-        .data = data
+        .prev = current,
+        .data = data,
+        .next = current->next,
     };
-    memcpy(&list->nodes[list->size++], &node, sizeof(node_t));
-    prev->next = &list->nodes[list->size - 1];
+    memcpy(&list->nodes[list->size], &node, sizeof(node_t));
+    node_t * temp = &list->nodes[list->size];
+    current->next = temp;
+    temp->next->prev = temp;
+    list->size++;
     return &list->nodes[list->size - 1];
+}
+
+void dbl_link_free(dbl_link_l * list) {
+    free(list->nodes);
 }
 
 void resize_if_full(dbl_link_l * list) {

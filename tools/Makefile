@@ -1,6 +1,6 @@
 # Variables
 CC = gcc
-CFLAGS = -Wall -O3 -std=c11 -DDEBUG
+CFLAGS = -Wall -O0 -std=c11 -DDEBUG -g
 ODUMP = objdump
 ODFLAGS = -d
 OBJCOPY = objcopy
@@ -38,12 +38,12 @@ $(TGTDIR)/$(target) : $(objects)
 	$(CC) $(CFLAGS) $^ -o $@
 
 # test rules.
-test: $(tests_list) | $(objects)
-	@echo $< "success"
+test: $(tests_list)
+	@$(foreach f,$^,./$(f) && echo $(f) "success";)
 
-$(OBJDIR)/%.exe: $(TSTDIR)/%.c $(objects) | $(objects)
+$(OBJDIR)/%.exe: $(TSTDIR)/%.c $(objects)
 	$(CC) $(CFLAGS) -o $@ $< $(filter $(@D)/$(basename $(@F))/%.o,$(objects))
-	$@
+
 # shared build rules.
 $(OBJDIR)/%.o: $(SRCDIR)/%.c | folders
 	@mkdir -p $(@D)

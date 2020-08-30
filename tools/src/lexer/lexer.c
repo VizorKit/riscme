@@ -26,7 +26,7 @@ lexer_l lexer_get_list(const char * buffer) {
     while(*buffer != '\0') {
         if(lex_list.size == lex_list.cap)
         {
-            lex_list.cap *= 1.5;
+            lex_list.cap = lex_list.cap << 1 ;
             lex_list.lexers = realloc(lex_list.lexers, sizeof(lexer_t) * lex_list.cap);
         }
         lexer_t lex = lexer_get(buffer, line, pos);
@@ -47,7 +47,7 @@ lexer_l lexer_get_list(const char * buffer) {
 token_t token_get(const char * buffer) {
     token_t token = {
         .value = EMPTY,
-        .data = {'\0'},
+        .data = NULL,
     };
     int c = (int)*buffer;
     const char *buf_cpy = buffer;
@@ -61,8 +61,7 @@ token_t token_get(const char * buffer) {
             length++;
             buffer++;
         }
-        memcpy(token.data, buf_cpy, sizeof(char) * length);
-        token.data[length] = '\0';
+        strncpy(token.data, buf_cpy, length);
     }
     else if(token.value == VALUE)
     {
@@ -73,10 +72,10 @@ token_t token_get(const char * buffer) {
             length++;
             buffer++;
         }
-        memcpy(token.data, buf_cpy, sizeof(char) * length);
+        strncpy(token.data, buf_cpy, length);
     }
     else {
-        token.data[0] = (char)c;
+        token.data = (char)c;
     }
     return token;
 }
