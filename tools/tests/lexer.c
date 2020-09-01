@@ -6,7 +6,7 @@
 
 void test_multi() {
     printf("test_multi\n");
-    /* 21 total */
+    /* 22 total */
     const char * buffer = " # This is a comment\n\t.globl label\nlabel:\nbneqz x0,x0,label\t\t # comment";
     lexer_l lexes = lexer_get_list(buffer, "Multi Line");
     assert(lexes.size == 23);

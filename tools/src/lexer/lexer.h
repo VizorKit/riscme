@@ -53,3 +53,4 @@ lexer_t lexer_get(const char *buffer, int line, int pos, const char * buff_name)
 lexer_l lexer_get_list(const char *buffer, const char * buff_name);
 void lexer_free_list(lexer_l * lex_list);
 TOKEN_E simple_get(const char c);
+void lexer_l_add(lexer_l * list, node_t * node);
