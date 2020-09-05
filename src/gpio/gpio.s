@@ -21,7 +21,7 @@ _gpio_init:
     sw t1, GPIO_OUTPUT_XOR(t0)  # Set the XOR to that the pins are Active High
     sw x0, GPIO_OUTPUT_VAL(t0)  # Set all writable GPIO pins to zero
 
-    li t1, GPIO_BLUE_LED        # Load green to indicate ready
+    li t1, GPIO_BLUE_LED        # Load blue to indicate ready
     sw t1, GPIO_OUTPUT_VAL(t0)  # Write the new output so we turn on the requested LED
     ret
 .globl _gpio_red

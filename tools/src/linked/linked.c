@@ -54,7 +54,9 @@ node_t * dbl_link_insert(dbl_link_l * list, node_t * current, const void * data)
     memcpy(&list->nodes[list->size], &node, sizeof(node_t));
     node_t * temp = &list->nodes[list->size];
     current->next = temp;
-    temp->next->prev = temp;
+    if(temp->next != NULL) {
+        temp->next->prev = temp;
+    }
     list->size++;
     return &list->nodes[list->size - 1];
 }

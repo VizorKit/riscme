@@ -103,9 +103,9 @@ token_t token_get(const char *buffer)
     return token;
 }
 
-void lexer_l_add(lexer_l * list, node_t * curr, lexer_t) {
+void lexer_l_add(lexer_l * list, node_t * curr, lexer_t lex) {
     resize_if_full(list);
-    list->
+    dbl_link_insert()
 }
 
 void lexer_free_list(lexer_l *lex_list)

@@ -57,7 +57,9 @@ void format_lex_list(lexer_l * lex_list)
     if(((lexer_t *)curr->data)->token.value != ENDLINE)
     {
         //add endline token;
-        dbl_link_add(lex_list->list, curr, le)
+        lexer_t * local = (lexer_t *)curr->data;
+        lexer_t new = lexer_get('\n', local->line, local->pos, local->file);
+        dbl_link_add(lex_list->list, curr, (void *)new);
     }
 }
 char * format_buffer(const char * to_format);
