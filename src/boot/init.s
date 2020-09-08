@@ -7,8 +7,7 @@ _start:
     jal ra, _gpio_init
     jal ra, _gpio_green
     jal ra, _set_rccmp
+    jal ra, _set_plic
     # wait for interupt.
-    li a1, 0x20010FFD
-    addi a0, x0, 1
-    sw a0, (a1)
+    wfi
     j .
