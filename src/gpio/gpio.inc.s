@@ -1,3 +1,0 @@
-.equ GPIO_RED_LED,      0x400000
-.equ GPIO_BLUE_LED,     0x200000
-.equ GPIO_GREEN_LED,    0x080000
