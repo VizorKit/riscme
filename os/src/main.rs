@@ -1,6 +1,6 @@
 #![no_std]
 #![no_main]
-#![feature(custom_test_frameworks, asm)]
+#![feature(custom_test_frameworks, asm, llvm_asm)]
 #![test_runner(crate::test_runner)]
 mod addresses {
     #[derive(Clone, Copy)]
@@ -47,9 +47,9 @@ const __HIGH_MEM: PhysAddr = PhysAddr::new(__RAM_ORIGIN.add_offset(__RAM_LENGTH)
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     unsafe {
-        asm!("lui sp, %pcrel_hi({})", const __HIGH_MEM.value());
+        asm!("li sp, {}", const __HIGH_MEM.value());
     }
-    loop {}
+    abort();
 }
 
 #[no_mangle]
@@ -61,6 +61,14 @@ fn panic(_info: &PanicInfo) -> ! {
     loop {}
 }
 
+#[no_mangle]
+extern "C" fn abort() -> ! {
+    loop {
+        unsafe {
+            llvm_asm!("wfi"::::"volatile");
+        }
+    }
+}
 #[cfg(test)]
 fn test_runner(tests: &[&dyn Fn()]) {
     for test in tests {
