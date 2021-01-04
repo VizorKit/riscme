@@ -1,7 +1,53 @@
 #![no_std]
 #![no_main]
+#![allow(dead_code)]
 #![feature(custom_test_frameworks, asm, llvm_asm)]
 #![test_runner(crate::test_runner)]
+mod registers {
+    #[repr(usize)]
+    #[allow(non_camel_case_types)]
+    pub enum REGISTERS {
+        x0 = 0,
+        ra,
+        sp,
+        gp,
+        tp,
+        t0,
+        t1,
+        t2,
+        s0,
+        s1,
+        a0, /* x10 */
+        a1,
+        a2,
+        a3,
+        a4,
+        a5,
+        a6,
+        a7,
+        s2,
+        s3,
+        s4, /* x20 */
+        s5,
+        s6,
+        s7,
+        s8,
+        s9,
+        s10,
+        s11,
+        t3,
+        t4,
+        t5, /* x30 */
+        t6,
+    }
+}
+mod cpu {
+    pub enum CpuMode {
+        User = 0,
+        Supervisor = 1,
+        Machine = 3,
+    }
+}
 mod addresses {
     #[derive(Clone, Copy)]
     pub struct PhysAddr(u32);
@@ -53,9 +99,20 @@ pub extern "C" fn _start() -> ! {
 }
 
 #[no_mangle]
-extern "C" fn _set_mtvec() -> () {}
+extern "C" fn _set_mtvect() -> () {
+    unsafe {
+        asm!(
+            "
+csrci t0, mstatus, 3
+la a0, _mtvect
+csrrw t2, mtvec, a0
+csrrci t1, mtvec, 1
+csrrsi t0, mstatus, 3
+"
+        )
+    }
+}
 
-/// This function is called on panic.
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
     loop {}
