@@ -6,6 +6,7 @@
 
 mod addresses;
 mod cpu;
+mod plic;
 mod registers;
 
 use addresses::{Offset, PhysAddr};
