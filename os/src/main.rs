@@ -8,6 +8,7 @@ mod addresses;
 mod cpu;
 mod plic;
 mod registers;
+mod write;
 
 use addresses::{Offset, PhysAddr};
 use core::panic::PanicInfo;
