@@ -6,24 +6,24 @@
 
 mod addresses;
 mod cpu;
+mod direct;
 mod plic;
 mod registers;
-mod write;
 
-use addresses::{Offset, PhysAddr};
+use addresses::{Address, Offset, PhysAddress};
 use core::panic::PanicInfo;
 
 #[no_mangle]
 extern "C" fn eh_personality() {}
 
-const __ROM_ORIGIN: PhysAddr = PhysAddr::new(0x20010000);
+const __ROM_ORIGIN: PhysAddress = PhysAddress::new(0x20010000);
 const __ROM_LENGTH: Offset = Offset::new(0x1000);
-const __RAM_ORIGIN: PhysAddr = PhysAddr::new(0x80000000);
+const __RAM_ORIGIN: PhysAddress = PhysAddress::new(0x80000000);
 const __RAM_LENGTH: Offset = Offset::new(0x4000);
-const __RESET_VECT: PhysAddr = PhysAddr::new(0x10040000);
+const __RESET_VECT: PhysAddress = PhysAddress::new(0x10040000);
 
-const __LOW_MEM: PhysAddr = __RAM_ORIGIN;
-const __HIGH_MEM: PhysAddr = PhysAddr::new(__RAM_ORIGIN.add_offset(__RAM_LENGTH).value());
+const __LOW_MEM: PhysAddress = __RAM_ORIGIN;
+const __HIGH_MEM: PhysAddress = PhysAddress::new(__RAM_ORIGIN.add(__RAM_LENGTH).value());
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
