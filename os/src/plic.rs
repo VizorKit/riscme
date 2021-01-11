@@ -1,5 +1,5 @@
 use crate::addresses::PhysAddress;
-// use crate::direct::{set_to, Shift};
+use crate::direct::set_to;
 
 const PLIC_ORIGIN: PhysAddress = PhysAddress::new(0x0C00_0000);
 const PLIC_PRIORITY: PhysAddress = PhysAddress::new(0x0C00_0004);
@@ -9,25 +9,35 @@ const PLIC_ENABLE1: PhysAddress = PhysAddress::new(0x0C00_2000);
 const PLIC_ENABLE2: PhysAddress = PhysAddress::new(0x0C00_2004);
 const PLIC_THRESHOLD: PhysAddress = PhysAddress::new(0x0C20_0000);
 
-pub struct Plic {
-    threshold: Threshold,
+pub fn init() {
+    set_to(PLIC_THRESHOLD, Threshold::Four as usize, 0);
+    set_priorities();
 }
 
-impl Plic {
-    pub fn init<F>(&self, func: F)
-    where
-        F: FnOnce() -> Plic,
-    {
-        func();
+pub fn set_priorities() -> () {}
+
+fn get_base_priorities(id: PlicID) -> Priority {
+    match id {
+        PlicID::AonWdg => Priority::Seven,
+        PlicID::AonRtc => Priority::Seven,
+        PlicID::Uart0 => Priority::Six,
+        PlicID::Uart1 => Priority::Five,
+        PlicID::Qspi0 => Priority::Four,
+        PlicID::Spi1 => Priority::Six,
+        PlicID::Spi2 => Priority::Six,
+        PlicID::Pwm0 => Priority::Four,
+        PlicID::Pwm1 => Priority::Four,
+        PlicID::Pwm2 => Priority::Four,
+        PlicID::I2C => Priority::Four,
+        _ => Priority::Four,
     }
 }
-
 pub enum PlicID {
     AonWdg = 0x01,
     AonRtc = 0x02,
     Uart0 = 0x03,
     Uart1 = 0x04,
-    Qspio = 0x05,
+    Qspi0 = 0x05,
     Spi1 = 0x06,
     Spi2 = 0x07,
     GpioStart = 0x08,
@@ -36,6 +46,10 @@ pub enum PlicID {
     Pwm1 = 0x29,
     Pwm2 = 0x2A,
     I2C = 0x2B,
+}
+pub enum GpioPlicID {
+    GpioStart = 0x08,
+    GpioEnd = 0x27,
 }
 pub enum Threshold {
     Zero = 0x00,

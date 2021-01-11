@@ -1,49 +1,28 @@
-use crate::addresses::Address;
+use crate::addresses::PhysAddress;
 use core::ptr::{read_volatile, write_volatile};
-#[derive(Copy, Clone)]
-pub struct Mask(usize);
-#[derive(Copy, Clone)]
-pub struct Value(usize);
-#[derive(Copy, Clone)]
-pub struct Shift(usize);
-impl Mask {
-    pub const fn new(mask: usize) -> Self {
-        Mask(mask)
-    }
-}
-impl Value {
-    pub const fn new(value: usize) -> Self {
-        Value(value)
-    }
-}
-impl Shift {
-    pub const fn new(shift: usize) -> Self {
-        Shift(shift)
-    }
-}
-pub fn set_to<T: Address>(item: T, set_val: Value, shift_val: Shift) {
+
+pub fn set_to(item: PhysAddress, set_val: usize, shift_val: usize) {
     unsafe {
         let ptr = item.value() as *mut usize;
-        write_volatile(ptr, set_val.0 << shift_val.0);
+        write_volatile(ptr, set_val << shift_val);
     }
 }
 
-pub fn mask_to<T: Address>(item: T, mask_val: Mask, mut set_val: Value, shift_val: Shift) {
+pub fn mask_to(item: PhysAddress, mask_val: usize, set_val: usize, shift_val: usize) {
     unsafe {
         let ptr = item.value() as *mut usize;
         let mut copy = read_volatile(ptr);
-        copy &= mask_val.0;
-        set_val.0 &= !mask_val.0;
-        write_volatile(ptr, copy | set_val.0 << shift_val.0);
+        copy &= mask_val;
+        write_volatile(ptr, copy | (set_val & (!mask_val)) << shift_val);
     }
 }
-pub fn or_to<T: Address>(item: T, or_val: Value, shift_val: Shift) {
+pub fn or_to(item: PhysAddress, or_val: usize, shift_val: usize) {
     unsafe {
         let ptr = item.value() as *mut usize;
-        write_volatile(ptr, read_volatile(ptr) | or_val.0 << shift_val.0);
+        write_volatile(ptr, read_volatile(ptr) | or_val << shift_val);
     }
 }
 
-fn read_from<T: Address>(item: T) -> usize {
+fn read_from(item: PhysAddress) -> usize {
     unsafe { read_volatile(item.value() as *const usize) }
 }

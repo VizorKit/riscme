@@ -1,7 +1,3 @@
-pub trait Address {
-    fn value(self) -> usize;
-}
-
 #[derive(Clone, Copy)]
 pub struct PhysAddress(usize);
 #[derive(Clone, Copy)]
