@@ -17,10 +17,7 @@ impl PhysAddress {
     pub const fn sub(self, offset: Offset) -> Self {
         PhysAddress(self.0 - offset.0)
     }
-}
-
-impl Address for PhysAddress {
-    fn value(self) -> usize {
+    pub const fn value(self) -> usize {
         self.0
     }
 }

@@ -9,10 +9,9 @@ mod cpu;
 mod direct;
 mod plic;
 mod registers;
-
-use addresses::{Address, Offset, PhysAddress};
+use addresses::{Offset, PhysAddress};
 use core::panic::PanicInfo;
-
+use plic::PLIC;
 #[no_mangle]
 extern "C" fn eh_personality() {}
 
@@ -30,6 +29,7 @@ pub extern "C" fn _start() -> ! {
     unsafe {
         asm!("li sp, {}", const __HIGH_MEM.value());
     }
+    PLIC.init({Plic { threshold.Zero}});
     abort();
 }
 
@@ -57,7 +57,7 @@ fn panic(_info: &PanicInfo) -> ! {
 extern "C" fn abort() -> ! {
     loop {
         unsafe {
-            llvm_asm!("wfi"::::"volatile");
+            asm!("wfi");
         }
     }
 }

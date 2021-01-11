@@ -21,14 +21,14 @@ impl Shift {
         Shift(shift)
     }
 }
-pub fn set_to<T: Address>(item: &T, set_val: Value, shift_val: Shift) {
+pub fn set_to<T: Address>(item: T, set_val: Value, shift_val: Shift) {
     unsafe {
         let ptr = item.value() as *mut usize;
         write_volatile(ptr, set_val.0 << shift_val.0);
     }
 }
 
-pub fn mask_to<T: Address>(item: &T, mask_val: Mask, mut set_val: Value, shift_val: Shift) {
+pub fn mask_to<T: Address>(item: T, mask_val: Mask, mut set_val: Value, shift_val: Shift) {
     unsafe {
         let ptr = item.value() as *mut usize;
         let mut copy = read_volatile(ptr);
@@ -37,13 +37,13 @@ pub fn mask_to<T: Address>(item: &T, mask_val: Mask, mut set_val: Value, shift_v
         write_volatile(ptr, copy | set_val.0 << shift_val.0);
     }
 }
-pub fn or_to<T: Address>(item: &T, or_val: Value, shift_val: Shift) {
+pub fn or_to<T: Address>(item: T, or_val: Value, shift_val: Shift) {
     unsafe {
         let ptr = item.value() as *mut usize;
         write_volatile(ptr, read_volatile(ptr) | or_val.0 << shift_val.0);
     }
 }
 
-fn read_from<T: Address>(item: &T) -> usize {
+fn read_from<T: Address>(item: T) -> usize {
     unsafe { read_volatile(item.value() as *const usize) }
 }
