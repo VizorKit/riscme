@@ -11,7 +11,7 @@ mod plic;
 mod registers;
 use addresses::{Offset, PhysAddress};
 use core::panic::PanicInfo;
-use plic::PLIC;
+
 #[no_mangle]
 extern "C" fn eh_personality() {}
 
@@ -29,7 +29,6 @@ pub extern "C" fn _start() -> ! {
     unsafe {
         asm!("li sp, {}", const __HIGH_MEM.value());
     }
-    PLIC.init({Plic { threshold.Zero}});
     abort();
 }
 

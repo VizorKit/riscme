@@ -1,5 +1,5 @@
 use crate::addresses::PhysAddress;
-use crate::direct::{mask_to, set_to, or_to};
+use crate::direct::{mask_to, or_to, set_to};
 
 const PLIC_ORIGIN: PhysAddress = PhysAddress::new(0x0C00_0000);
 const PLIC_PRIORITY: PhysAddress = PhysAddress::new(0x0C00_0004);
@@ -11,17 +11,15 @@ const PLIC_THRESHOLD: PhysAddress = PhysAddress::new(0x0C20_0000);
 
 pub fn init() {
     set_to(PLIC_THRESHOLD, Threshold::Four as usize, 0);
-    or_to(PLIC_ENABLE1, 1, PlicID::AonWdg as usize);
+
     set_priorities();
 }
 
-pub fn set_priorities() -> () {
-    or_to(PLIC_ENABLE1, 1, ;
-    }
+pub fn set_priorities() -> () {}
 
-    pub fn enable_register(id: PlicID) -> Priority {
-        
-    }    
+pub fn enable_register(id: PlicID) {
+    or_to(PLIC_ENABLE1, 1, id as usize);
+}
 
 fn get_base_priorities(id: PlicID) -> Priority {
     match id {
