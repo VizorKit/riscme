@@ -1,56 +1,49 @@
-use core::cell::UnsafeCell;
-use core::marker::PhantomData;
-use core::ops::{BitAnd, BitAndAssign, BitOr, BitOrAssign, Not};
+use core::ptr::{read_volatile, write_volatile};
 
-#[repr(transparent)]
-pub struct Volatile<T, V>(UnsafeCell<T>, PhantomData<V>);
-pub struct Mask<T, U, V>(Volatile<T, V>, PhantomData<U>);
-
-impl<T: Copy + 'static, U: Copy + 'static> Volatile<T, U> {
-    pub fn read_from(&self) -> T {
-        unsafe { self.0.get().read_volatile() }
-    }
-    pub fn write_to(&self, val: U) {
-        unsafe {
-            let ptr = self.0.get().write_volatile(val);
-        }
+pub trait Address {
+    const ADDR: usize;
+    fn get(&self) -> usize {
+        Self::ADDR
     }
 }
 
-impl<
-        T: BitOrAssign<U>
-            + BitOrAssign<T>
-            + BitOrAssign<V>
-            + BitAndAssign<U>
-            + BitAndAssign<V>
-            + BitAndAssign<T>
-            + BitOr
-            + BitAnd
-            + Not
-            + Copy
-            + 'static,
-        U: BitOrAssign + BitAndAssign + BitOr + BitAnd + Not + Copy + 'static,
-        V: BitOrAssign + BitAndAssign + BitOr + BitAnd + Not + Copy + 'static,
-    > Mask<T, U, V>
-{
-    pub fn mask_to(self, mask: U, mut value: V) {
-        unsafe {
-            let mut copy = self.0.read_from();
-            copy &= mask;
-            value &= !mask;
-            self.0.write_to(copy | value)
-        }
+pub trait Mask {
+    const MASK: usize;
+}
+pub trait Write {
+    const WRITE: usize;
+    fn get(&self) -> usize {
+        Self::WRITE
     }
 }
-impl<
-        T: BitOrAssign<V> + BitOrAssign<T> + BitAndAssign + BitOr + BitAnd + Not + Copy + 'static,
-        U: BitOrAssign + BitAndAssign + BitOr + BitAnd + Not + Copy + 'static,
-        V: BitOrAssign + BitAndAssign + BitOr + BitAnd + Not + Copy + 'static,
-    > Mask<T, U, V>
-{
-    pub fn or_to(self, value: V) {
-        let mut copy: T = self.0.read_from();
-        copy |= value;
-        self.0.write_to(copy);
-    }
+
+pub fn read_from<T: Address + 'static>(addr: T) -> usize {
+    unsafe { read_volatile(addr.get() as *const usize) }
 }
+pub fn write_to<T: Address + 'static, V: Write + 'static>(addr: T, val: V) {
+    unsafe { write_volatile(addr.get() as *mut usize, val.get()) }
+}
+// impl<
+//         T: Address> Mask<T, U, V>
+// {
+//     pub fn mask_to(self, mask: U, mut value: V) {
+//         unsafe {
+//             let mut copy = self.0.read_from();
+//             copy &= mask;
+//             value &= !mask;
+//             self.0.write_to(copy | value)
+//         }
+//     }
+// }
+// impl<
+//         T: BitOrAssign<V> + BitOrAssign<T> + BitAndAssign + BitOr + BitAnd + Not + Copy + 'static,
+//         U: BitOrAssign + BitAndAssign + BitOr + BitAnd + Not + Copy + 'static,
+//         V: BitOrAssign + BitAndAssign + BitOr + BitAnd + Not + Copy + 'static,
+//     > Mask<T, U, V>
+// {
+//     pub fn or_to(self, value: V) {
+//         let mut copy: T = self.0.read_from();
+//         copy |= value;
+//         self.0.write_to(copy);
+//     }
+// }
