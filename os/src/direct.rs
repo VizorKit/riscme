@@ -9,6 +9,9 @@ pub trait Address {
 
 pub trait Mask {
     const MASK: usize;
+    fn get(&self) -> usize {
+        Self::MASK
+    }
 }
 pub trait Write {
     const WRITE: usize;
@@ -17,12 +20,32 @@ pub trait Write {
     }
 }
 
-pub fn read_from<T: Address + 'static>(addr: T) -> usize {
+pub fn read_from<T: Address + Copy + 'static>(addr: T) -> usize {
     unsafe { read_volatile(addr.get() as *const usize) }
 }
-pub fn write_to<T: Address + 'static, V: Write + 'static>(addr: T, val: V) {
+pub fn write_to<T: Address + Copy + 'static, V: Write + 'static>(addr: T, val: V) {
     unsafe { write_volatile(addr.get() as *mut usize, val.get()) }
 }
+
+pub fn mask_to<T: Address + Copy + 'static, U: Mask + 'static, V: Write + 'static>(
+    addr: T,
+    mask: U,
+    value: V,
+) {
+    let mut copy = read_from(addr);
+    copy &= mask.get();
+    unsafe {
+        write_volatile(addr.get() as *mut usize, copy | value.get() & !mask.get());
+    }
+}
+pub fn or_to<T: Address + Copy + 'static, V: Write + 'static>(addr: T, val: V) {
+    let mut copy = read_from(addr);
+    copy |= val.get();
+    unsafe {
+        write_volatile(addr.get() as *mut usize, copy);
+    }
+}
+
 // impl<
 //         T: Address> Mask<T, U, V>
 // {
