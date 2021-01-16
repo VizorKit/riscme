@@ -1,23 +1,14 @@
 use core::ptr::{read_volatile, write_volatile};
 
 pub trait Address {
-    const ADDR: usize;
-    fn get(&self) -> usize {
-        Self::ADDR
-    }
+    fn get(&self) -> usize;
 }
 
 pub trait Mask {
-    const MASK: usize;
-    fn get(&self) -> usize {
-        Self::MASK
-    }
+    fn get(&self) -> usize;
 }
 pub trait Write {
-    const WRITE: usize;
-    fn get(&self) -> usize {
-        Self::WRITE
-    }
+    fn get(&self) -> usize;
 }
 
 pub fn read_from<T: Address + Copy + 'static>(addr: T) -> usize {

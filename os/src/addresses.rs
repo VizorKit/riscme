@@ -1,6 +1,10 @@
+use crate::direct::Address;
+
 #[derive(Clone, Copy)]
+#[repr(transparent)]
 pub struct PhysAddress(usize);
 #[derive(Clone, Copy)]
+#[repr(transparent)]
 pub struct Offset(usize);
 
 impl PhysAddress {
@@ -17,7 +21,11 @@ impl PhysAddress {
         self.0
     }
 }
-
+impl Address for PhysAddress {
+    fn get(&self) -> usize {
+        self.0
+    }
+}
 impl Offset {
     pub const fn new(offset: usize) -> Self {
         Offset(offset)

@@ -1,5 +1,5 @@
 use crate::addresses::PhysAddress;
-//use crate::direct::{mask_to, or_to, set_to};
+use crate::direct::{mask_to, or_to, write_to, Write};
 
 const PLIC_ORIGIN: PhysAddress = PhysAddress::new(0x0C00_0000);
 const PLIC_PRIORITY: PhysAddress = PhysAddress::new(0x0C00_0004);
@@ -9,16 +9,12 @@ const PLIC_ENABLE1: PhysAddress = PhysAddress::new(0x0C00_2000);
 const PLIC_ENABLE2: PhysAddress = PhysAddress::new(0x0C00_2004);
 const PLIC_THRESHOLD: PhysAddress = PhysAddress::new(0x0C20_0000);
 
-pub fn init() {
-    //  set_to(PLIC_THRESHOLD, Threshold::Four as usize, 0);
-
-    set_priorities();
-}
+pub fn init() {}
 
 pub fn set_priorities() -> () {}
 
 pub fn enable_register(id: PlicID) {
-    //or_to(PLIC_ENABLE1, 1, id as usize);
+    or_to(PLIC_ENABLE1, id);
 }
 
 fn get_base_priorities(id: PlicID) -> Priority {
@@ -37,20 +33,30 @@ fn get_base_priorities(id: PlicID) -> Priority {
         _ => Priority::Three,
     }
 }
+#[derive(Clone, Copy)]
+#[repr(C)]
+#[rustfmt::skip]
 pub enum PlicID {
-    AonWdg = 0x01,
-    AonRtc = 0x02,
-    Uart0 = 0x03,
-    Uart1 = 0x04,
-    Qspi0 = 0x05,
-    Spi1 = 0x06,
-    Spi2 = 0x07,
-    GpioStart = 0x08,
-    GpioEnd = 0x27,
-    Pwm0 = 0x28,
-    Pwm1 = 0x29,
-    Pwm2 = 0x2A,
-    I2C = 0x2B,
+    AonWdg    = 0b1,
+    AonRtc    = 0b10,
+    Uart0     = 0b100,
+    Uart1     = 0b1000,
+    Qspi0     = 0b1_0000,
+    Spi1      = 0b10_0000,
+    Spi2      = 0b100_0000,
+    GpioStart = 0b1000_0000,
+    /// not correct end. todo!(fix);
+    GpioEnd   = 0b1_0000_0000,
+    Pwm0      = 0b10_0000_0000,
+    Pwm1      = 0b100_0000_0000,
+    Pwm2      = 0b1000_0000_0000,
+    I2C       = 0b1_0000_0000_0000,
+}
+
+impl Write for PlicID {
+    fn get(&self) -> usize {
+        *self as usize
+    }
 }
 pub enum GpioPlicID {
     GpioStart = 0x08,
