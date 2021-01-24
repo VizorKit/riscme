@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 #![allow(dead_code)]
-#![feature(custom_test_frameworks, asm, llvm_asm)]
+#![feature(custom_test_frameworks, asm)]
 #![test_runner(crate::test_runner)]
 
 mod addresses;
@@ -22,7 +22,7 @@ const __RAM_LENGTH: Offset = Offset::new(0x4000);
 const __RESET_VECT: PhysAddress = PhysAddress::new(0x10040000);
 
 const __LOW_MEM: PhysAddress = __RAM_ORIGIN;
-const __HIGH_MEM: PhysAddress = PhysAddress::new(__RAM_ORIGIN.add(__RAM_LENGTH).value());
+const __HIGH_MEM: PhysAddress = __RAM_ORIGIN.add(__RAM_LENGTH);
 
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
