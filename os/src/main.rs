@@ -1,7 +1,7 @@
 #![no_std]
 #![no_main]
 #![allow(dead_code)]
-#![feature(custom_test_frameworks, asm)]
+#![feature(custom_test_frameworks, asm, naked_functions)]
 #![test_runner(crate::test_runner)]
 
 mod addresses;
@@ -15,11 +15,11 @@ use core::panic::PanicInfo;
 #[no_mangle]
 extern "C" fn eh_personality() {}
 
-const __ROM_ORIGIN: PhysAddress = PhysAddress::new(0x20010000);
-const __ROM_LENGTH: Offset = Offset::new(0x1000);
-const __RAM_ORIGIN: PhysAddress = PhysAddress::new(0x80000000);
-const __RAM_LENGTH: Offset = Offset::new(0x4000);
-const __RESET_VECT: PhysAddress = PhysAddress::new(0x10040000);
+const __ROM_ORIGIN: PhysAddress = phys!(0x20010000);
+const __ROM_LENGTH: Offset = m_offset!(0x1000);
+const __RAM_ORIGIN: PhysAddress = phys!(0x80000000);
+const __RAM_LENGTH: Offset = m_offset!(0x4000);
+const __RESET_VECT: PhysAddress = phys!(0x10040000);
 
 const __LOW_MEM: PhysAddress = __RAM_ORIGIN;
 const __HIGH_MEM: PhysAddress = __RAM_ORIGIN.add(__RAM_LENGTH);
@@ -27,11 +27,27 @@ const __HIGH_MEM: PhysAddress = __RAM_ORIGIN.add(__RAM_LENGTH);
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
     unsafe {
-        asm!("li sp, {}", const __HIGH_MEM.value());
+        asm!("
+la t0, _early_trap_vector_lbl
+csrw mtvec, t0
+li sp, {}", const __HIGH_MEM.value()
+        );
     }
     abort();
 }
 
+#[naked]
+#[no_mangle]
+#[rustfmt::skip]
+unsafe extern "C" fn _early_trap_vector() -> ! {
+        asm!("
+.align 2
+_early_trap_vector_lbl:
+    csrr t0, mcause
+    csrr t1, mepc
+    csrr t2, mtval
+    j _early_trap_vector_lbl", options(noreturn))
+}
 #[no_mangle]
 extern "C" fn _set_mtvect() -> () {
     unsafe {
