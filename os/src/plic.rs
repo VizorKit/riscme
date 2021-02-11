@@ -1,5 +1,5 @@
 use crate::addresses::{Offset, PhysAddress};
-use crate::direct::{mask_to, or_to, write_to};
+use crate::direct::{or_to, read_from, write_to};
 use crate::{m_offset, phys};
 
 const PLIC_ORIGIN: PhysAddress = phys!(0x0C00_0000);
@@ -9,6 +9,7 @@ const PLIC_PENDING2: PhysAddress = phys!(0x0C001_0004);
 const PLIC_ENABLE1: PhysAddress = phys!(0x0C00_2000);
 const PLIC_ENABLE2: PhysAddress = phys!(0x0C00_2004);
 const PLIC_THRESHOLD: PhysAddress = phys!(0x0C20_0000);
+const PLIC_CLAIM: PhysAddress = phys!(0x0C20_0004);
 
 pub fn init() {
     set_threshold();
@@ -19,6 +20,15 @@ pub fn init() {
         );
     }
     enable_register1(PlicEnable::AllUpper);
+}
+
+pub fn claim() -> PlicID {
+    let val = read_from(PLIC_CLAIM.value());
+    PlicID::create(val)
+}
+
+pub fn complete(id: usize) -> () {
+    or_to(PLIC_ENABLE1.value(), id);
 }
 
 pub fn set_threshold() -> () {
@@ -45,12 +55,14 @@ fn get_base_priorities(id: PlicID) -> Priority {
         PlicID::Pwm1 => Priority::Four,
         PlicID::Pwm2 => Priority::Four,
         PlicID::I2C => Priority::Four,
+        PlicID::None => Priority::Zero,
     }
 }
 
 #[repr(C)]
 #[rustfmt::skip]
 pub enum PlicID {
+    None      = 0x0,
     AonWdg    = 0x1,
     AonRtc    = 0x2,
     Uart0     = 0x3,
@@ -69,6 +81,7 @@ pub enum PlicID {
 impl PlicID {
     pub fn create(val: usize) -> PlicID {
         match val {
+            0 => PlicID::None,
             1 => PlicID::AonWdg,
             2 => PlicID::AonRtc,
             3 => PlicID::Uart0,

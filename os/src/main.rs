@@ -5,10 +5,8 @@
 #![test_runner(crate::test_runner)]
 
 mod addresses;
-mod cpu;
 mod direct;
 mod plic;
-mod registers;
 use addresses::{Offset, PhysAddress};
 use core::panic::PanicInfo;
 
@@ -33,6 +31,7 @@ csrw mtvec, t0
 li sp, {}", const __HIGH_MEM.value()
         );
     }
+    plic::init();
     abort();
 }
 
@@ -47,20 +46,6 @@ _early_trap_vector_lbl:
     csrr t1, mepc
     csrr t2, mtval
     j _early_trap_vector_lbl", options(noreturn))
-}
-#[no_mangle]
-extern "C" fn _set_mtvect() -> () {
-    unsafe {
-        asm!(
-            "
-csrrci t0, mstatus, 3
-la a0, _mtvect
-csrrw t2, mtvec, a0
-csrrci t1, mtvec, 1
-csrrsi t0, mstatus, 3
-"
-        )
-    }
 }
 
 #[panic_handler]
